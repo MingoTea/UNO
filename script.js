@@ -569,6 +569,18 @@ function showGame() {
 }
 
 function renderGame() {
+  if (gameState.winner) {
+
+  if (!document.getElementById('win-screen').classList.contains('show')) {
+
+    setTimeout(() => {
+      endGame(gameState.winner);
+    }, 200);
+
+  }
+
+  return;
+}
   if (!gameState) return;
   const gs  = gameState;
   const myIdx = gs.players.findIndex(p => p.id === myId);
@@ -606,7 +618,7 @@ function renderGame() {
   }
 
   const unoBtn = document.getElementById('uno-btn');
-  (me && me.hand.length === 1 && isMyTurn && !me.calledUno)
+  (me && me.hand.length === 2 && isMyTurn)
     ? unoBtn.classList.add('show') : unoBtn.classList.remove('show');
 
   renderOtherPlayers(myIdx);
@@ -631,7 +643,10 @@ function renderOtherPlayers(myIdx) {
       onclick="tryCatchUno('${p.id}')">
       <div class="op-name ${isCurrent?'current-turn':''}">${p.avatar} ${escHtml(p.name)}</div>
       <div class="op-cards">${miniCards}</div>
-      <div class="op-count">${p.hand.length} bài${p.calledUno&&p.hand.length===1?' 🔴':''}</div>
+      <div class="op-count">${p.hand.length} bài${p.hand.length===1
+ ? (p.calledUno ? ' 🔴' : ' 🚨')
+ : ''
+}</div>
     </div>`;
   });
   container.innerHTML = html;
@@ -655,14 +670,22 @@ function endGame(winner) {
 }
 
 window.backToLobby = async function () {
-  detachAll();
-  if (isHost) {
-    await remove(ref(db, `rooms/${roomCode}`));
-    await remove(ref(db, `games/${roomCode}`));
-  } else {
-    const updated = players.filter(p => p.id !== myId);
-    if (updated.length > 0) await set(ref(db, `games/${roomCode}/players`), updated);
+
+  try {
+
+    detachAll();
+
+    if (isHost) {
+
+      await remove(ref(db, `rooms/${roomCode}`));
+      await remove(ref(db, `games/${roomCode}`));
+
+    }
+
+  } catch (e) {
+    console.log(e);
   }
+
   location.reload();
 };
 
