@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>UNO Online</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOBBY -->
+<div id="lobby">
+  <div class="logo">UNO</div>
+  <div class="lobby-box" id="lobby-create">
+    <h2>🃏 Tạo phòng mới</h2>
+    <input type="text" id="create-name" placeholder="Tên của bạn" maxlength="16">
+    <input type="text" id="create-room" placeholder="Tên phòng (để trống = tự tạo)" maxlength="20">
+    <button class="btn btn-primary" onclick="createRoom()">Tạo phòng & Chờ bạn bè</button>
+    <div class="divider">── hoặc ──</div>
+    <h2>🔗 Nhập mã phòng</h2>
+    <input type="text" id="join-code" placeholder="Nhập mã phòng 4 ký tự" maxlength="8" style="letter-spacing:4px;text-transform:uppercase">
+    <button class="btn btn-secondary" onclick="joinByCode()">Tham gia</button>
+    <div class="divider">── phòng đang mở ──</div>
+    <div id="room-list"><div id="no-rooms">Chưa có phòng nào. Hãy tạo phòng đầu tiên!</div></div>
+    <input type="text" id="join-name" placeholder="Tên của bạn (khi tham gia)" maxlength="16" style="margin-top:4px">
+  </div>
+</div>
+
+<!-- WAITING ROOM -->
+<div id="waiting">
+  <h2>Phòng chờ</h2>
+  <div id="room-code-display">----</div>
+  <p id="wait-status">Đang chờ người chơi...</p>
+  <div id="player-list-wait"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-secondary" onclick="leaveRoom()">Rời phòng</button>
+    <button class="btn btn-primary" id="start-btn" onclick="startGame()" style="display:none">Bắt đầu trò chơi 🎮</button>
+  </div>
+  <p style="font-size:12px;opacity:.4;text-align:center;max-width:340px">
+    Chia sẻ mã phòng cho bạn bè.<br>Cần ít nhất 2 người để bắt đầu.
+  </p>
+</div>
+
+<!-- GAME -->
+<div id="game">
+  <!-- Other players positioned around the table -->
+  <div id="other-players-container"></div>
+
+  <!-- Center table -->
+  <div id="table-area">
+    <div id="turn-indicator">Lượt của...</div>
+    <div id="piles">
+      <div id="draw-pile" onclick="drawCard()" title="Rút bài">
+        <div class="card-back">UNO</div>
+      </div>
+      <div id="discard-pile"></div>
+    </div>
+    <div id="game-info">
+      <span id="direction-indicator">🔄</span>
+      <span id="deck-count"> 108 bài còn lại</span>
+    </div>
+  </div>
+
+  <!-- My area -->
+  <div id="my-area">
+    <div id="my-info">
+      <span id="my-name-display">Bạn</span>
+      <span id="my-card-count">0 bài</span>
+    </div>
+    <div id="hand-container"></div>
+  </div>
+
+  <button id="uno-btn" onclick="callUno()">UNO!</button>
+</div>
+
+<!-- Color picker -->
+<div id="color-picker">
+  <h3>Chọn màu</h3>
+  <div id="color-options">
+    <div class="color-opt red"    onclick="pickColor('red')">R</div>
+    <div class="color-opt blue"   onclick="pickColor('blue')">B</div>
+    <div class="color-opt green"  onclick="pickColor('green')">G</div>
+    <div class="color-opt yellow" onclick="pickColor('yellow')">Y</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Win screen -->
+<div id="win-screen">
+  <div class="trophy">🏆</div>
+  <h2 id="win-title">Bạn thắng!</h2>
+  <p id="win-sub">Chúc mừng!</p>
+  <button class="btn btn-primary" onclick="backToLobby()">Chơi lại</button>
+</div>
+
+<script type="module" src="script.js"></script>
+
+<div id="fx-overlay"></div>
+
+<div id="chat-mini">
+  <div><b>Quick Reactions</b></div>
+  <div id="chat-log">Ready to play!</div>
+  <div class="emoji-bar">
+    <span class="emoji-btn">😂</span>
+    <span class="emoji-btn">😎</span>
+    <span class="emoji-btn">🔥</span>
+    <span class="emoji-btn">😱</span>
+  </div>
+</div>
+
+</body>
+</html>

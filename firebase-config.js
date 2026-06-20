@@ -1,6 +1,7 @@
 export const firebaseConfig = {
   apiKey: "AIzaSyA3y2g6K63Pu_HrGgwhC804QcvZLgHxCOg",
   authDomain: "choiunonha.firebaseapp.com",
+  databaseURL: "https://choiunonha-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "choiunonha",
   storageBucket: "choiunonha.firebasestorage.app",
   messagingSenderId: "474956613479",
