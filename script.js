@@ -95,7 +95,6 @@ window.createRoom = async function () {
     playerCount: 1, gameStarted: false, ts: Date.now()
   });
   await set(ref(db, `games/${roomCode}/players`), players);
-  await set(ref(db, `games/${roomCode}/status`), 'waiting');
 
   if (unsubRooms) { unsubRooms(); unsubRooms = null; }
   attachWaitingListeners();
@@ -169,29 +168,34 @@ function normalizeState(gs) {
 }
 
 function attachWaitingListeners() {
-  // Guard: don't double-attach
-  if (unsubPlayers || unsubStatus) return;
 
-  // 1. Players list → re-render waiting room
+  if (unsubPlayers) return;
+
+  // Danh sách người chơi
   unsubPlayers = onValue(ref(db, `games/${roomCode}/players`), snap => {
+
     if (!snap.exists()) return;
+
     players = toArray(snap.val());
+
     renderWaiting();
   });
 
-  // 2. Status node → "started" means host launched the game
-  unsubStatus = onValue(ref(db, `games/${roomCode}/status`), snap => {
+  // Chuyển sang game khi state xuất hiện
+  unsubState = onValue(ref(db, `games/${roomCode}/state`), snap => {
+
     if (!snap.exists()) return;
-    const status = snap.val();
-    if (status === 'started' && !isHost && !gameState) {
-      get(ref(db, `games/${roomCode}/state`)).then(stateSnap => {
-        if (!stateSnap.exists()) return;
-        gameState = normalizeState(stateSnap.val());
-        attachGameStateListener();
-        document.getElementById('waiting').style.display = 'none';
-        showGame();
-      });
+
+    gameState = normalizeState(snap.val());
+
+    if (document.getElementById('game').style.display !== 'block') {
+
+      document.getElementById('waiting').style.display = 'none';
+
+      showGame();
     }
+
+    renderGame();
   });
 }
 
@@ -258,17 +262,20 @@ window.startGame = async function () {
 
   applyTopCardEffect(true);
 
-  // Write state FIRST, then flip status to "started"
-  // Non-hosts are watching status; once it flips they fetch state
-  await set(ref(db, `games/${roomCode}/state`), gameState);
-  await update(ref(db, `rooms/${roomCode}`), { gameStarted: true });
-  await set(ref(db, `games/${roomCode}/status`), 'started');
+await set(ref(db, `games/${roomCode}/state`), gameState);
+console.log("HOST START GAME");
+console.log(gameState);
 
-  // Host listens for incoming actions
-  attachActionsListener();
+await update(ref(db, `rooms/${roomCode}`), {
+  gameStarted: true
+});
 
-  document.getElementById('waiting').style.display = 'none';
-  showGame();
+attachGameStateListener();
+attachActionsListener();
+
+document.getElementById('waiting').style.display = 'none';
+
+showGame();
 };
 
 // ─────────────────────────────────────────────
@@ -277,18 +284,31 @@ window.startGame = async function () {
 
 // Non-host: watch state node for every update from host
 function attachGameStateListener() {
+
   if (unsubState) return;
+
   unsubState = onValue(ref(db, `games/${roomCode}/state`), snap => {
+
     if (!snap.exists()) return;
+
     const prev = gameState;
-    gameState  = normalizeState(snap.val());
+
+    gameState = normalizeState(snap.val());
+
+    if (document.getElementById('game').style.display !== 'block') {
+      showGame();
+    }
+
     renderGame();
+
     if (gameState.winner && (!prev || !prev.winner)) {
-      setTimeout(() => endGame(gameState.winner), 300);
+
+      setTimeout(() => {
+        endGame(gameState.winner);
+      }, 300);
     }
   });
 
-  // Also attach chat
   attachChatListener();
 }
 
