@@ -101,22 +101,17 @@ window.createRoom = async function () {
   showWaiting();
 };
 
-// ─────────────────────────────────────────────
-// JOIN ROOM
-// ─────────────────────────────────────────────
-window.joinByCode = function () {
-  const code = document.getElementById('join-code').value.trim().toUpperCase().substring(0, 4);
-  const name = document.getElementById('join-name').value.trim() ||
-               document.getElementById('create-name').value.trim();
-  if (!code) { toast('Nhập mã phòng!'); return; }
-  if (!name) { toast('Nhập tên của bạn!'); return; }
-  doJoin(code, name);
-};
-
 window.quickJoin = function (code) {
-  const name = document.getElementById('join-name').value.trim() ||
-               document.getElementById('create-name').value.trim();
-  if (!name) { toast('Nhập tên của bạn trước!'); document.getElementById('join-name').focus(); return; }
+
+  const name =
+    document.getElementById('create-name').value.trim();
+
+  if (!name) {
+    toast('Nhập tên của bạn trước!');
+    document.getElementById('create-name').focus();
+    return;
+  }
+
   doJoin(code, name);
 };
 
