@@ -134,7 +134,7 @@ async function doJoin(code, name) {
   if (room.playerCount >= MAX_PLAYERS) { toast('Phòng đã đầy!'); return; }
 
   const playersSnap = await get(ref(db, `games/${roomCode}/players`));
-  const existing    = playersSnap.val() || [];
+  const existing    = toArray(playersSnap.val());
   if (!existing.find(p => p.id === myId))
     existing.push({ id: myId, name: myName, avatar: myAvatar, isHost: false });
 
@@ -150,25 +150,43 @@ async function doJoin(code, name) {
 // ─────────────────────────────────────────────
 // WAITING ROOM LISTENERS
 // ─────────────────────────────────────────────
+function toArray(val) {
+  // Firebase stores arrays as objects {0:..., 1:...} when keys are numeric
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  return Object.values(val);
+}
+
+function normalizeState(gs) {
+  // Firebase converts arrays → objects; convert back everywhere
+  gs.players = toArray(gs.players).map(p => ({
+    ...p,
+    hand: toArray(p.hand)
+  }));
+  gs.discard = toArray(gs.discard);
+  gs.deck    = toArray(gs.deck);
+  return gs;
+}
+
 function attachWaitingListeners() {
+  // Guard: don't double-attach
+  if (unsubPlayers || unsubStatus) return;
+
   // 1. Players list → re-render waiting room
   unsubPlayers = onValue(ref(db, `games/${roomCode}/players`), snap => {
     if (!snap.exists()) return;
-    players = snap.val();
+    players = toArray(snap.val());
     renderWaiting();
   });
 
   // 2. Status node → "started" means host launched the game
-  //    Non-host: fetch state and enter game
-  //    Host: already handled in startGame()
   unsubStatus = onValue(ref(db, `games/${roomCode}/status`), snap => {
     if (!snap.exists()) return;
     const status = snap.val();
     if (status === 'started' && !isHost && !gameState) {
-      // Fetch the full game state once, then start listening for updates
       get(ref(db, `games/${roomCode}/state`)).then(stateSnap => {
         if (!stateSnap.exists()) return;
-        gameState = stateSnap.val();
+        gameState = normalizeState(stateSnap.val());
         attachGameStateListener();
         document.getElementById('waiting').style.display = 'none';
         showGame();
@@ -263,7 +281,7 @@ function attachGameStateListener() {
   unsubState = onValue(ref(db, `games/${roomCode}/state`), snap => {
     if (!snap.exists()) return;
     const prev = gameState;
-    gameState  = snap.val();
+    gameState  = normalizeState(snap.val());
     renderGame();
     if (gameState.winner && (!prev || !prev.winner)) {
       setTimeout(() => endGame(gameState.winner), 300);
