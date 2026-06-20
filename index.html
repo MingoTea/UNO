@@ -10,21 +10,79 @@
 <body>
 
 <!-- LOBBY -->
+<!-- LOBBY -->
 <div id="lobby">
+
   <div class="logo">UNO</div>
-  <div class="lobby-box" id="lobby-create">
-    <h2>🃏 Tạo phòng mới</h2>
-    <input type="text" id="create-name" placeholder="Tên của bạn" maxlength="16">
-    <input type="text" id="create-room" placeholder="Tên phòng (để trống = tự tạo)" maxlength="20">
-    <button class="btn btn-primary" onclick="createRoom()">Tạo phòng & Chờ bạn bè</button>
-    <div class="divider">── hoặc ──</div>
-    <h2>🔗 Nhập mã phòng</h2>
-    <input type="text" id="join-code" placeholder="Nhập mã phòng 4 ký tự" maxlength="8" style="letter-spacing:4px;text-transform:uppercase">
-    <button class="btn btn-secondary" onclick="joinByCode()">Tham gia</button>
-    <div class="divider">── phòng đang mở ──</div>
-    <div id="room-list"><div id="no-rooms">Chưa có phòng nào. Hãy tạo phòng đầu tiên!</div></div>
-    <input type="text" id="join-name" placeholder="Tên của bạn (khi tham gia)" maxlength="16" style="margin-top:4px">
+
+  <div class="lobby-wrapper">
+
+    <!-- CREATE ROOM -->
+    <div class="lobby-panel">
+
+      <h2>🎮 Tạo Room</h2>
+
+      <input
+        type="text"
+        id="create-name"
+        placeholder="Tên của bạn"
+        maxlength="16">
+
+      <input
+        type="text"
+        id="create-room"
+        placeholder="Tên phòng (để trống = tự tạo)"
+        maxlength="20">
+
+      <button
+        class="btn btn-primary"
+        onclick="createRoom()">
+        Tạo phòng
+      </button>
+
+    </div>
+
+    <!-- JOIN ROOM -->
+    <div class="lobby-panel">
+
+      <h2>🚪 Vào Room</h2>
+
+      <input
+        type="text"
+        id="join-name"
+        placeholder="Tên của bạn"
+        maxlength="16">
+
+      <input
+        type="text"
+        id="join-code"
+        placeholder="Nhập mã phòng"
+        maxlength="8"
+        style="letter-spacing:4px;text-transform:uppercase">
+
+      <button
+        class="btn btn-secondary"
+        onclick="joinByCode()">
+        Tham gia
+      </button>
+
+    </div>
+
   </div>
+
+  <!-- ROOM LIST -->
+  <div class="room-browser">
+
+    <h3>🌐 Phòng đang mở</h3>
+
+    <div id="room-list">
+      <div id="no-rooms">
+        Chưa có phòng nào. Hãy tạo phòng đầu tiên!
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- WAITING ROOM -->
