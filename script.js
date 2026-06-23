@@ -377,10 +377,6 @@ function canPlay(card, top) {
   return false;
 }
 
-function canPlayAnyCard(hand, top) {
-  return hand.some(card => canPlay(card, top));
-}
-
 function cardHTML(card) {
   return `<div class="card ${card.color}" data-id="${card.id}" onclick="playCard(${card.id})">
     <span class="corner tl">${card.display}</span>
