@@ -739,18 +739,6 @@ function toast(msg) {
 }
 
 // ─────────────────────────────────────────────
-// CHAT / REACTIONS
-// ─────────────────────────────────────────────
-async function sendReaction(emoji) {
-  if (!roomCode) return;
-  await push(ref(db, `games/${roomCode}/chat`), {
-    fromId: myId, fromName: myName, msg: emoji, ts: Date.now()
-  });
-  const el = document.getElementById('chat-log');
-  if (el) el.textContent = `Bạn: ${emoji}`;
-}
-
-// ─────────────────────────────────────────────
 // VISUAL FX
 // ─────────────────────────────────────────────
 function playBeep(freq=500, dur=0.08) {
@@ -818,8 +806,5 @@ window.addEventListener('resize', () => { if (gameState) renderGame(); });
 
 window.addEventListener('load', () => {
   document.getElementById('game').classList.add('table-glow');
-  document.querySelectorAll('.emoji-btn').forEach(b => {
-    b.onclick = () => sendReaction(b.textContent);
-  });
   startLobbyListener();
 });
