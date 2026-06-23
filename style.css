@@ -305,7 +305,19 @@ position:fixed;right:10px;bottom:10px;z-index:999;
 background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
 padding:10px;border-radius:12px;font-size:12px;max-width:220px;
 }
-.emoji-bar{display:flex;gap:6px;margin-top:6px}
+.emoji-bar{
+    position:absolute;
+
+    left:15px;
+    bottom:15px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:8px;
+
+    z-index:100;
+}
 .emoji-btn{cursor:pointer}
 @keyframes rainbowFlash{
 0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}
