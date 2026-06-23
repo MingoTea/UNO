@@ -377,6 +377,10 @@ function canPlay(card, top) {
   return false;
 }
 
+function canPlayAnyCard(hand, top) {
+  return hand.some(card => canPlay(card, top));
+}
+
 function cardHTML(card) {
   return `<div class="card ${card.color}" data-id="${card.id}" onclick="playCard(${card.id})">
     <span class="corner tl">${card.display}</span>
@@ -440,6 +444,10 @@ function processAction(fromId, action, payload) {
     card.activeColor = payload.chosenColor || card.color;
     gs.discard.push(card);
 
+    if (cur.hand.length > 1) {
+      cur.calledUno = false;
+}
+
     if (cur.hand.length === 0) {
       gs.winner = { id: cur.id, name: cur.name };
       broadcastState(); return;
@@ -490,10 +498,30 @@ function processAction(fromId, action, payload) {
   }
 
   else if (action === 'UNO_CALL') {
-    const gp = gs.players.find(p => p.id === fromId);
-    if (gp) { gp.calledUno = true; broadcastState(); }
-    toast(`${payload.name} hô UNO! 🔴`);
-  }
+
+  const gp = gs.players.find(p => p.id === fromId);
+
+  if (!gp) return;
+
+  const currentPlayer = gs.players[gs.currentTurn];
+
+  if (currentPlayer.id !== fromId)
+    return;
+
+  if (gp.hand.length !== 2)
+    return;
+
+  const top = gs.discard[gs.discard.length - 1];
+
+  if (!canPlayAnyCard(gp.hand, top))
+    return;
+
+  gp.calledUno = true;
+
+  broadcastState();
+
+  toast(`${payload.name} hô UNO! 🔴`);
+}
 }
 
 async function broadcastState() {
@@ -558,6 +586,12 @@ async function sendAction(action, payload) {
   }
 }
 
+function canPlayAnyCard(hand) {
+  return hand.some(card =>
+    isPlayable(card, gameState.discard[gameState.discard.length - 1])
+  );
+}
+
 // ─────────────────────────────────────────────
 // RENDER GAME
 // ─────────────────────────────────────────────
@@ -618,10 +652,17 @@ function renderGame() {
   }
 
   const unoBtn = document.getElementById('uno-btn');
-  (me && me.hand.length === 2 && isMyTurn)
-    ? unoBtn.classList.add('show') : unoBtn.classList.remove('show');
 
-  renderOtherPlayers(myIdx);
+  const canPreUno =
+    me &&
+    isMyTurn &&
+    me.hand.length === 2 &&
+    !me.calledUno &&
+    canPlayAnyCard(me.hand, top);
+
+  canPreUno
+    ? unoBtn.classList.add('show')
+    : unoBtn.classList.remove('show');
 }
 
 function renderOtherPlayers(myIdx) {
